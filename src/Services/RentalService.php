@@ -44,11 +44,9 @@ class RentalService
             throw new BacainException("Buku tidak ditemukan.");
         }
 
-        if ($book instanceof Rentable && method_exists($book, 'calculateRentalCost')) {
-            return (float) $book->calculateRentalCost($days);
-        }
-
-        return $book->getRentalPrice() * $days;
+        return $book instanceof Rentable
+            ? $book->hitungHargaSewa($days)
+            : $book->getHargaDasar() * $days;
     }
 
     /**
@@ -71,14 +69,14 @@ class RentalService
         }
 
         // 1. Cek ketersediaan stok buku
-        if ($book->getStock() <= 0) {
-            throw new BacainException("Stok buku '{$book->getTitle()}' sedang habis.");
+        if ($book->getStok() <= 0) {
+            throw new BacainException("Stok buku '{$book->getJudul()}' sedang habis.");
         }
 
         // 2. Cek batas maksimal sewa aktif member
         $activeRentals = $this->rentalRepository->findActiveByMemberId($memberId);
-        $limit = method_exists($member, 'getMaxRentLimit')
-            ? $member->getMaxRentLimit()
+        $limit = method_exists($member, 'getBatasSewa')
+            ? $member->getBatasSewa()
             : $this->maxActiveRentals;
 
         if (count($activeRentals) >= $limit) {
@@ -89,7 +87,7 @@ class RentalService
         $totalPrice = $this->calculatePrice($bookId, $days);
 
         // 4. Kurangi stok buku dan simpan perubahan
-        $book->decreaseStock(1);
+        $book->sewa();
         $this->bookRepository->save($book);
 
         // 5. Buat dan simpan record Rental
@@ -99,13 +97,12 @@ class RentalService
 
         $rental = new Rental(
             $rentalId,
-            $memberId,
-            $bookId,
+            $member,
+            $book,
             $rentalDate,
             $dueDate,
-            $totalPrice,
             'active',
-            null
+            $totalPrice
         );
 
         $this->rentalRepository->save($rental);
@@ -127,22 +124,10 @@ class RentalService
             throw new BacainException("Buku pada transaksi ini sudah dikembalikan sebelumnya.");
         }
 
-        // Tandai sewa selesai
-        if (method_exists($rental, 'markAsReturned')) {
-            $rental->markAsReturned(date('Y-m-d'));
-        } else {
-            $rental->setStatus('returned');
-            if (method_exists($rental, 'setReturnDate')) {
-                $rental->setReturnDate(date('Y-m-d'));
-            }
-        }
-
-        // Kembalikan stok buku
-        $book = $this->bookRepository->findById($rental->getBookId());
-        if ($book !== null) {
-            $book->increaseStock(1);
-            $this->bookRepository->save($book);
-        }
+        // Tandai sewa selesai dan kembalikan stok melalui model domain.
+        $rental->prosesKembalikan();
+        $book = $rental->getBuku();
+        $this->bookRepository->save($book);
 
         $this->rentalRepository->save($rental);
 

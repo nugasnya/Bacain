@@ -113,4 +113,26 @@ class Komik extends Media
 
         return (float) round($total, 2);
     }
+
+    public function toArray(): array
+    {
+        return array_merge(parent::toArray(), [
+            'type' => 'komik',
+            'jumlahChapter' => $this->jumlahChapter,
+            'isBerwarna' => $this->isBerwarna,
+        ]);
+    }
+
+    public static function fromArray(array $data): Komik
+    {
+        return new Komik(
+            $data['id'],
+            $data['title'] ?? $data['judul'] ?? '',
+            $data['author'] ?? $data['penulis'] ?? '',
+            (float) ($data['rentalPrice'] ?? $data['hargaDasar'] ?? $data['hargaSewa'] ?? $data['harga_sewa'] ?? 0),
+            (int) ($data['stock'] ?? $data['stok'] ?? 0),
+            (int) ($data['jumlahChapter'] ?? $data['chapter'] ?? $data['volume'] ?? 1),
+            (bool) ($data['isBerwarna'] ?? $data['berwarna'] ?? false)
+        );
+    }
 }

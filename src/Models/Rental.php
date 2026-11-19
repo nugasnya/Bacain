@@ -364,4 +364,56 @@ class Rental
 
         return false;
     }
+
+    public function getMemberId(): int|string
+    {
+        return $this->member->getId();
+    }
+
+    public function getBookId(): int|string
+    {
+        return $this->buku->getId();
+    }
+
+    public function getRentalDate(): string
+    {
+        return $this->getTanggalSewa();
+    }
+
+    public function getDueDate(): string
+    {
+        return $this->getTanggalJatuhTempo();
+    }
+
+    public function getTotalPrice(): float
+    {
+        return $this->getTotalBiaya();
+    }
+
+    public function markAsReturned(?string $returnDate = null): void
+    {
+        $this->prosesKembalikan();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'memberId' => $this->member->getId(),
+            'member_id' => $this->member->getId(),
+            'bookId' => $this->buku->getId(),
+            'book_id' => $this->buku->getId(),
+            'tanggalSewa' => $this->tanggalSewa,
+            'tanggal_sewa' => $this->tanggalSewa,
+            'rentalDate' => $this->tanggalSewa,
+            'tanggalJatuhTempo' => $this->tanggalJatuhTempo,
+            'tanggal_jatuh_tempo' => $this->tanggalJatuhTempo,
+            'dueDate' => $this->tanggalJatuhTempo,
+            'status' => $this->status,
+            'totalBiaya' => $this->totalBiaya,
+            'harga_total' => $this->totalBiaya,
+            'totalPrice' => $this->totalBiaya,
+            'returnDate' => null,
+        ];
+    }
 }

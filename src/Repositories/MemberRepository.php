@@ -24,8 +24,12 @@ class MemberRepository extends JsonRepository
 
     public function findById(string $id): ?Member
     {
-        $item = parent::findById($id);
-        return $item instanceof Member ? $item : null;
+        foreach ($this->findAll() as $member) {
+            if ((string) $member->getId() === $id) {
+                return $member;
+            }
+        }
+        return null;
     }
 
     public function findByEmail(string $email): ?Member
@@ -46,17 +50,7 @@ class MemberRepository extends JsonRepository
      */
     protected function mapToEntity(array $data): Member
     {
-        if (method_exists(Member::class, 'fromArray')) {
-            return Member::fromArray($data);
-        }
-
-        return new Member(
-            $data['id'],
-            $data['name'] ?? $data['nama'] ?? '',
-            $data['email'],
-            $data['password'] ?? $data['passwordHash'] ?? '',
-            (int) ($data['maxRentLimit'] ?? 3)
-        );
+        return Member::fromArray($data);
     }
 }
 

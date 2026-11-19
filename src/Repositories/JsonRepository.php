@@ -85,7 +85,7 @@ abstract class JsonRepository
                 ? $item->getId()
                 : ($item['id'] ?? null);
 
-            if ($itemId === $id) {
+            if ($itemId !== null && (string) $itemId === $id) {
                 return $item;
             }
         }
@@ -112,7 +112,7 @@ abstract class JsonRepository
 
         $updated = false;
         foreach ($records as $index => $record) {
-            if (($record['id'] ?? null) === $id) {
+            if (isset($record['id']) && (string) $record['id'] === (string) $id) {
                 $records[$index] = $dataArray;
                 $updated = true;
                 break;
@@ -136,7 +136,8 @@ abstract class JsonRepository
 
         $filtered = array_filter(
             $records,
-            fn(array $record): bool => ($record['id'] ?? null) !== $id
+            fn(array $record): bool =>
+                !isset($record['id']) || (string) $record['id'] !== (string) $id
         );
 
         if (count($filtered) === $initialCount) {

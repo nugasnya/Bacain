@@ -105,4 +105,26 @@ class Novel extends EBook
 
         return (float) round($total, 2);
     }
+
+    public function toArray(): array
+    {
+        return array_merge(parent::toArray(), [
+            'type' => 'novel',
+            'jumlahHalaman' => $this->jumlahHalaman,
+        ]);
+    }
+
+    public static function fromArray(array $data): Novel
+    {
+        return new Novel(
+            $data['id'],
+            $data['title'] ?? $data['judul'] ?? '',
+            $data['author'] ?? $data['penulis'] ?? '',
+            (float) ($data['rentalPrice'] ?? $data['hargaDasar'] ?? $data['hargaSewa'] ?? $data['harga_sewa'] ?? 0),
+            (int) ($data['stock'] ?? $data['stok'] ?? 0),
+            (int) ($data['pages'] ?? $data['jumlahHalaman'] ?? $data['halaman'] ?? 0),
+            $data['fileFormat'] ?? $data['formatFile'] ?? $data['format'] ?? 'PDF',
+            (float) ($data['fileSizeMb'] ?? $data['ukuranFile'] ?? $data['ukuran_mb'] ?? 0)
+        );
+    }
 }

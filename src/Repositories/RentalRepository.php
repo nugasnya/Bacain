@@ -5,12 +5,22 @@ declare(strict_types=1);
 namespace Bacain\Repositories;
 
 use Bacain\Models\Rental;
+use Bacain\Exceptions\BacainException;
 
 class RentalRepository extends JsonRepository
 {
-    public function __construct(string $filePath = __DIR__ . '/../../data/rentals.json')
+    private ?MemberRepository $memberRepository;
+    private ?BookRepository $bookRepository;
+
+    public function __construct(
+        string $filePath = __DIR__ . '/../../data/rentals.json',
+        ?MemberRepository $memberRepository = null,
+        ?BookRepository $bookRepository = null
+    )
     {
         parent::__construct($filePath);
+        $this->memberRepository = $memberRepository ?? new MemberRepository();
+        $this->bookRepository = $bookRepository ?? new BookRepository();
     }
 
     /**
@@ -24,8 +34,12 @@ class RentalRepository extends JsonRepository
 
     public function findById(string $id): ?Rental
     {
-        $item = parent::findById($id);
-        return $item instanceof Rental ? $item : null;
+        foreach ($this->findAll() as $rental) {
+            if ((string) $rental->getId() === $id) {
+                return $rental;
+            }
+        }
+        return null;
     }
 
     /**
@@ -37,7 +51,7 @@ class RentalRepository extends JsonRepository
     {
         return array_values(array_filter(
             $this->findAll(),
-            fn(Rental $rental): bool => $rental->getMemberId() === $memberId
+            fn(Rental $rental): bool => (string) $rental->getMemberId() === (string) $memberId
         ));
     }
 
@@ -52,6 +66,7 @@ class RentalRepository extends JsonRepository
             $this->findByMemberId($memberId),
             fn(Rental $rental): bool => strtolower($rental->getStatus()) === 'active'
                 || strtolower($rental->getStatus()) === 'dipinjam'
+                || strtolower($rental->getStatus()) === 'terlambat'
         ));
     }
 
@@ -60,19 +75,29 @@ class RentalRepository extends JsonRepository
      */
     protected function mapToEntity(array $data): Rental
     {
-        if (method_exists(Rental::class, 'fromArray')) {
-            return Rental::fromArray($data);
+        $memberId = (string) ($data['memberId'] ?? $data['member_id'] ?? '');
+        $bookId = (string) ($data['bookId'] ?? $data['book_id'] ?? '');
+
+        $member = $this->memberRepository?->findById($memberId);
+        $book = $this->bookRepository?->findById($bookId);
+
+        if ($member === null || $book === null) {
+            throw new BacainException("Data member atau buku pada transaksi '{$data['id']}' tidak ditemukan.");
         }
+
+        $rentalDate = $data['tanggalSewa'] ?? $data['tanggal_sewa'] ?? $data['rentalDate'] ?? date('Y-m-d');
+        $dueDate = $data['tanggalJatuhTempo'] ?? $data['tanggal_jatuh_tempo'] ?? $data['dueDate'] ?? date('Y-m-d', strtotime('+7 days'));
+        $status = $data['status'] ?? 'active';
+        $totalPrice = (float) ($data['totalBiaya'] ?? $data['harga_total'] ?? $data['totalPrice'] ?? 0);
 
         return new Rental(
             $data['id'],
-            $data['memberId'],
-            $data['bookId'],
-            $data['rentalDate'] ?? date('Y-m-d'),
-            $data['dueDate'] ?? date('Y-m-d', strtotime('+7 days')),
-            (float) ($data['totalPrice'] ?? 0),
-            $data['status'] ?? 'active',
-            $data['returnDate'] ?? null
+            $member,
+            $book,
+            $rentalDate,
+            $dueDate,
+            $status,
+            $totalPrice
         );
     }
 }

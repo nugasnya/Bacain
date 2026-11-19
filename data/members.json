@@ -1,0 +1,47 @@
+[
+  {
+    "id": "M001",
+    "nama": "Bimo",
+    "email": "bimo@bacain.test",
+    "password": "$2y$10$stgoRVUfb64ColtNrMrRDuY4I5/S7rQ38ZXOU6UqHV3REgWbx1l06",
+    "status_keanggotaan": "reguler",
+    "batas_sewa": 3,
+    "tanggal_daftar": "2026-10-01"
+  },
+  {
+    "id": "M002",
+    "nama": "Farhan",
+    "email": "farhan@bacain.test",
+    "password": "$2y$10$stgoRVUfb64ColtNrMrRDuY4I5/S7rQ38ZXOU6UqHV3REgWbx1l06",
+    "status_keanggotaan": "premium",
+    "batas_sewa": 5,
+    "tanggal_daftar": "2026-10-03"
+  },
+  {
+    "id": "M003",
+    "nama": "Syakish",
+    "email": "syakish@bacain.test",
+    "password": "$2y$10$stgoRVUfb64ColtNrMrRDuY4I5/S7rQ38ZXOU6UqHV3REgWbx1l06",
+    "status_keanggotaan": "reguler",
+    "batas_sewa": 2,
+    "tanggal_daftar": "2026-10-10"
+  },
+  {
+    "id": "M004",
+    "nama": "Rofi",
+    "email": "rofi@bacain.test",
+    "password": "$2y$10$stgoRVUfb64ColtNrMrRDuY4I5/S7rQ38ZXOU6UqHV3REgWbx1l06",
+    "status_keanggotaan": "reguler",
+    "batas_sewa": 3,
+    "tanggal_daftar": "2026-10-15"
+  },
+  {
+    "id": "M005",
+    "nama": "Ryan",
+    "email": "ryan@bacain.test",
+    "password": "$2y$10$stgoRVUfb64ColtNrMrRDuY4I5/S7rQ38ZXOU6UqHV3REgWbx1l06",
+    "status_keanggotaan": "reguler",
+    "batas_sewa": 3,
+    "tanggal_daftar": "2026-11-01"
+  }
+]

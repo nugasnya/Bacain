@@ -52,8 +52,8 @@ class CatalogService
         return array_values(array_filter(
             $this->getAllBooks(),
             function (Media $book) use ($keyword): bool {
-                $titleMatch = str_contains(strtolower($book->getTitle()), $keyword);
-                $authorMatch = str_contains(strtolower($book->getAuthor()), $keyword);
+                $titleMatch = str_contains(strtolower($book->getJudul()), $keyword);
+                $authorMatch = str_contains(strtolower($book->getPenulis()), $keyword);
                 return $titleMatch || $authorMatch;
             }
         ));
@@ -75,7 +75,7 @@ class CatalogService
             $this->getAllBooks(),
             function (Media $book) use ($normalized): bool {
                 return match ($normalized) {
-                    'ebook' => $book instanceof EBook,
+                    'ebook' => $book instanceof EBook && !($book instanceof Novel),
                     'novel' => $book instanceof Novel,
                     'komik' => $book instanceof Komik,
                     default => false,

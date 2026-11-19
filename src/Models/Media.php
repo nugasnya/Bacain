@@ -224,4 +224,56 @@ abstract class Media implements Rentable
      * @return float Total harga sewa
      */
     abstract public function hitungHargaSewa(int $durasiHari = 1): float;
+
+    public function getTitle(): string
+    {
+        return $this->getJudul();
+    }
+
+    public function getAuthor(): string
+    {
+        return $this->getPenulis();
+    }
+
+    public function getStock(): int
+    {
+        return $this->getStok();
+    }
+
+    public function decreaseStock(int $amount = 1): void
+    {
+        if ($amount < 0) {
+            throw new BacainException("Jumlah stok yang dikurangi tidak boleh negatif.");
+        }
+        $this->setStok($this->stok - $amount);
+    }
+
+    public function increaseStock(int $amount = 1): void
+    {
+        if ($amount < 0) {
+            throw new BacainException("Jumlah stok yang ditambah tidak boleh negatif.");
+        }
+        $this->setStok($this->stok + $amount);
+    }
+
+    public function getRentalPrice(): float
+    {
+        return $this->hitungHargaSewa(1);
+    }
+
+    public function calculateRentalCost(int $durasiHari = 1): float
+    {
+        return $this->hitungHargaSewa($durasiHari);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'judul' => $this->judul,
+            'penulis' => $this->penulis,
+            'hargaDasar' => $this->hargaDasar,
+            'stok' => $this->stok,
+        ];
+    }
 }

@@ -61,7 +61,7 @@ class AuthService
     {
         $member = $this->memberRepository->findByEmail($email);
 
-        if ($member === null || !password_verify($password, $member->getPassword())) {
+        if ($member === null || !$member->verifyPassword($password)) {
             throw new BacainException("Email atau password salah.");
         }
 

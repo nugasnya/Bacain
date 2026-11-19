@@ -182,4 +182,42 @@ class Member extends User
 
         return false;
     }
+
+    public function getMaxRentLimit(): int
+    {
+        return $this->getBatasSewa();
+    }
+
+    public function getName(): string
+    {
+        return $this->getNama();
+    }
+
+    public function toArray(): array
+    {
+        return array_merge(parent::toArray(), [
+            'name' => $this->getNama(),
+            'password' => $this->getPasswordHash(),
+            'statusKeanggotaan' => $this->statusKeanggotaan,
+            'batasSewa' => $this->batasSewa,
+            'maxRentLimit' => $this->batasSewa,
+            'daftarSewaAktif' => array_map(
+                fn(Rental $rental): array => $rental->toArray(),
+                $this->daftarSewaAktif
+            ),
+        ]);
+    }
+
+    public static function fromArray(array $data): Member
+    {
+        return new Member(
+            $data['id'],
+            $data['name'] ?? $data['nama'] ?? '',
+            $data['email'] ?? '',
+            $data['passwordHash'] ?? $data['password'] ?? '',
+            $data['statusKeanggotaan'] ?? $data['status_keanggotaan'] ?? $data['status'] ?? 'Standard',
+            (int) ($data['batasSewa'] ?? $data['batas_sewa'] ?? $data['maxRentLimit'] ?? 3),
+            (array) ($data['daftarSewaAktif'] ?? [])
+        );
+    }
 }

@@ -165,4 +165,24 @@ class User
     {
         return password_verify($plainPassword, $this->passwordHash);
     }
+
+    public function getName(): string
+    {
+        return $this->getNama();
+    }
+
+    public function getPassword(): string
+    {
+        return $this->getPasswordHash();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'nama' => $this->nama,
+            'email' => $this->email,
+            'passwordHash' => $this->passwordHash,
+        ];
+    }
 }
